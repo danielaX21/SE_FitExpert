@@ -5,115 +5,136 @@ import json
 class FitExpertUI:
     def __init__(self, root):
         self.root = root
-        self.root.title("FitExpert – Professional Fitness Advisor")
-        self.root.geometry("500x600")
-        self.root.configure(bg="#121212")  # Fundal Dark Mode modern
+        self.root.title("FitExpert – Premium Advisor")
+        self.root.geometry("600x750")
+        self.root.configure(bg="#0F0C29") # Fundal Deep Navy/Space
 
-        # Configurare Fonturi
-        self.titlu_font = font.Font(family="Helvetica", size=20, weight="bold")
-        self.text_font = font.Font(family="Helvetica", size=12)
-        self.btn_font = font.Font(family="Helvetica", size=11, weight="bold")
+        # Culori Paletă Mov Premium
+        self.color_primary = "#BB86FC"  # Mov Electric
+        self.color_bg_card = "#1A1A2E"  # Card Navy închis
+        self.color_text = "#E0E0E0"
+        self.color_accent = "#03DAC6"   # Teal pentru accente (opțional)
 
-        # Culori Tematice (Neutru/Energy)
-        self.accent_color = "#BB86FC"  # Mov electric (specific Material Design)
-        self.bg_card = "#1E1E1E"       # Gri închis pentru card
-        self.text_color = "#E0E0E0"    # Alb-gri pentru lizibilitate
+        # Incarcare Date
+        with open('baza_cunostinte.json', 'r', encoding='utf-8') as f:
+            self.date = json.load(f)
 
-        # Incarcare Baza de Cunostinte
-        try:
-            with open('baza_cunostinte.json', 'r', encoding='utf-8') as f:
-                self.date = json.load(f)
-        except FileNotFoundError:
-            messagebox.showerror("Eroare", "Fișierul JSON lipsește!")
-            self.root.destroy()
-
-        self.index_intrebare = 0
-        self.total_intrebari = len(self.date["intrebari"])
-        self.raspunsuri_utilizator = {}
-
-        self.creeaza_widgeturi()
-        self.afiseaza_intrebare()
-
-    def creeaza_widgeturi(self):
-        # Bara de Progres (Custom)
-        self.canvas_progress = tk.Canvas(self.root, height=10, bg="#333333", highlightthickness=0)
-        self.canvas_progress.pack(fill="x", side="top")
-        self.progress_bar = self.canvas_progress.create_rectangle(0, 0, 0, 10, fill=self.accent_color)
-
-        # Header
-        self.header_label = tk.Label(self.root, text="FIT EXPERT", bg="#121212", 
-                                     fg=self.accent_color, font=self.titlu_font, pady=30)
-        self.header_label.pack()
-
-        # Cardul Central (unde stau intrebarile)
-        self.card = tk.Frame(self.root, bg=self.bg_card, padx=30, pady=30, 
-                             highlightbackground="#333333", highlightthickness=1)
-        self.card.pack(expand=True, fill="both", padx=40, pady=(0, 40))
-
-        self.label_intrebare = tk.Label(self.card, text="", bg=self.bg_card, 
-                                        fg=self.text_color, font=self.text_font, 
-                                        wraplength=350, justify="center")
-        self.label_intrebare.pack(pady=(0, 25))
-
-        self.options_frame = tk.Frame(self.card, bg=self.bg_card)
-        self.options_frame.pack(fill="x")
-
-        # Butonul "Next" stilizat
-        self.btn_next = tk.Button(self.root, text="CONTINUĂ", command=self.proceseaza,
-                                  bg=self.accent_color, fg="#121212", font=self.btn_font,
-                                  relief="flat", padx=40, pady=12, cursor="hand2",
-                                  activebackground="#A370DB")
-        self.btn_next.pack(side="bottom", pady=40)
-
-    def actualizeaza_progres(self):
-        procent = (self.index_intrebare / self.total_intrebari) * 500
-        self.canvas_progress.coords(self.progress_bar, 0, 0, procent, 10)
-
-    def afiseaza_intrebare(self):
-        self.actualizeaza_progres()
+        self.index = 0
+        self.raspunsuri = {}
         
-        # Curatare optiuni
-        for widget in self.options_frame.winfo_children():
-            widget.destroy()
+        self.setup_styles()
+        self.build_ui()
+        self.show_question()
 
-        intrebare_data = self.date["intrebari"][self.index_intrebare]
-        self.label_intrebare.config(text=intrebare_data["text"].upper())
+    def setup_styles(self):
+        self.f_title = font.Font(family="Montserrat", size=24, weight="bold")
+        self.f_text = font.Font(family="Inter", size=12)
+        self.f_btn = font.Font(family="Inter", size=11, weight="bold")
+
+    def build_ui(self):
+        # Bara de progres "Neon"
+        self.p_canvas = tk.Canvas(self.root, height=4, bg="#0F0C29", highlightthickness=0)
+        self.p_canvas.pack(fill="x")
+        self.p_bar = self.p_canvas.create_rectangle(0, 0, 0, 4, fill=self.color_primary, outline="")
+
+        # Header cu Glow
+        self.header = tk.Label(self.root, text="FITEXPERT", bg="#0F0C29", 
+                               fg=self.color_primary, font=self.f_title, pady=40)
+        self.header.pack()
+
+        # Cardul Central - "Glass Effect"
+        self.card = tk.Frame(self.root, bg=self.color_bg_card, padx=40, pady=40,
+                             highlightbackground="#2A2A4A", highlightthickness=2)
+        self.card.pack(expand=True, fill="both", padx=50, pady=(0, 40))
+
+        self.q_label = tk.Label(self.card, text="", bg=self.color_bg_card, 
+                                fg="white", font=("Inter", 14, "bold"), 
+                                wraplength=400, justify="center")
+        self.q_label.pack(pady=(0, 30))
+
+        self.opts_frame = tk.Frame(self.card, bg=self.color_bg_card)
+        self.opts_frame.pack(fill="x")
+
+        # Buton "Next" cu stil modern
+        self.btn_next = tk.Button(self.root, text="CONTINUĂ  →", command=self.next_step,
+                                  bg=self.color_primary, fg="#0F0C29", font=self.f_btn,
+                                  relief="flat", padx=60, pady=18, cursor="hand2",
+                                  activebackground="#D7B7FD")
+        self.btn_next.pack(side="bottom", pady=50)
+
+    def update_progress(self):
+        w = (self.index / len(self.date["intrebari"])) * 600
+        self.p_canvas.coords(self.p_bar, 0, 0, w, 4)
+
+    def show_question(self):
+        self.update_progress()
+        for w in self.opts_frame.winfo_children(): w.destroy()
+
+        q = self.date["intrebari"][self.index]
+        self.q_label.config(text=q["text"])
         
-        self.var_selectata = tk.StringVar(value="")
+        self.v = tk.StringVar(value="")
+        for opt in q["optiuni"]:
+            # Stilizare Radio - eliminam cercul standard unde se poate sau il coloram
+            rb = tk.Radiobutton(self.opts_frame, text=opt, variable=self.v, value=opt,
+                                bg=self.color_bg_card, fg=self.color_text, 
+                                font=self.f_text, selectcolor="#2A2A4A",
+                                activebackground=self.color_bg_card, 
+                                activeforeground=self.color_primary,
+                                pady=12, cursor="hand2", anchor="w")
+            rb.pack(fill="x", padx=20)
 
-        # RadioButtons stilizate pentru Dark Mode
-        for optiune in intrebare_data["optiuni"]:
-            rb = tk.Radiobutton(self.options_frame, text=optiune, variable=self.var_selectata, 
-                                value=optiune, bg=self.bg_card, fg=self.text_color,
-                                font=self.text_font, selectcolor="#333333", 
-                                activebackground=self.bg_card, activeforeground=self.accent_color,
-                                pady=10, cursor="hand2")
-            rb.pack(anchor="w")
-
-    def proceseaza(self):
-        raspuns = self.var_selectata.get()
-        if not raspuns:
-            messagebox.showwarning("Info", "Selectează o opțiune pentru a avansa!")
+    def next_step(self):
+        if not self.v.get():
+            messagebox.showwarning("FitExpert", "Te rugăm să alegi o variantă pentru a debloca recomandarea! ✨")
             return
 
-        id_intrebare = self.date["intrebari"][self.index_intrebare]["id"]
-        self.raspunsuri_utilizator[id_intrebare] = raspuns
+        q_id = self.date["intrebari"][self.index]["id"]
+        self.raspunsuri[q_id] = self.v.get()
         
-        self.index_intrebare += 1
-        
-        if self.index_intrebare < self.total_intrebari:
-            self.afiseaza_intrebare()
+        self.index += 1
+        if self.index < len(self.date["intrebari"]):
+            self.show_question()
         else:
-            self.actualizeaza_progres()
-            self.finalizare()
+            self.show_result()
 
-    def finalizare(self):
-        # Aici interfața trimite datele către mașina de inferență [cite: 27, 89]
-        messagebox.showinfo("FitExpert", "Analiza profilului tau a fost finalizata!")
-        print("Date colectate:", self.raspunsuri_utilizator)
+    def show_result(self):
+        self.update_progress()
+        for w in self.card.winfo_children(): w.destroy()
+        self.btn_next.destroy()
+
+        # Logica Forward Chaining (Motorul tau)
+        res = self.date["recomandare_default"]
+        for r in self.date["reguli"]:
+            if all(self.raspunsuri.get(k) == v for k, v in r["daca"].items()):
+                res = r
+                break
+
+        # Afisare Rezultat "Fancy"
+        tk.Label(self.card, text="PROFIL ANALIZAT COMPLET", bg=self.color_bg_card, 
+                 fg=self.color_primary, font=("Inter", 10, "bold")).pack(pady=(0, 20))
+        
+        tk.Label(self.card, text=res["atunci"], bg=self.color_bg_card, 
+                 fg="white", font=("Montserrat", 22, "bold"), wraplength=400).pack()
+        
+        # Linie de decor
+        tk.Frame(self.card, height=2, width=100, bg=self.color_primary).pack(pady=20)
+
+        tk.Label(self.card, text=res["descriere"], bg=self.color_bg_card, 
+                 fg="#B0B0C0", font=self.f_text, wraplength=400, justify="center").pack(pady=20)
+
+        tk.Button(self.card, text="REÎNCEPE ANALIZA", command=self.reset,
+                  bg="#2A2A4A", fg="white", font=self.f_btn, relief="flat", 
+                  padx=20, pady=10, cursor="hand2").pack(side="bottom", pady=20)
+
+    def reset(self):
         self.root.destroy()
+        run_app()
+
+def run_app():
+    root = tk.Tk()
+    FitExpertUI(root)
+    root.mainloop()
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = FitExpertUI(root)
-    root.mainloop()
+    run_app()

@@ -1,23 +1,41 @@
 {
-  "proiect": "FitExpert",
+  "nume_proiect": "FitExpert Pro",
   "intrebari": [
     {
       "id": "obiectiv",
-      "text": "Care este obiectivul tău principal?",
-      "optiuni": ["slăbit", "tonifiere", "relaxare"],
+      "text": "Care este misiunea ta principală astăzi?",
+      "optiuni": ["Slăbit intens", "Tonifiere musculară", "Relaxare & Flexibilitate", "Energie & Cardio"],
       "tip_input": "radiobutton"
     },
     {
       "id": "timp",
-      "text": "Cât timp poți aloca pe săptămână?",
-      "optiuni": ["sub 3 ore", "3-5 ore", "peste 5 ore"],
+      "text": "Cât timp poți dedica săptămânal mișcării?",
+      "optiuni": ["Limitat (1-2h)", "Moderat (3-5h)", "Dedicat (5h+)"],
       "tip_input": "radiobutton"
     },
     {
-      "id": "preferinta",
-      "text": "Cum preferi să te antrenezi?",
-      "optiuni": ["individual", "în grup"],
+      "id": "mediu",
+      "text": "Unde te simți cel mai confortabil?",
+      "optiuni": ["Acasă/Individual", "În comunitate/Grup", "În aer liber"],
+      "tip_input": "radiobutton"
+    },
+    {
+      "id": "intensitate",
+      "text": "Ce nivel de efort ești gata să depui?",
+      "optiuni": ["Lejer", "Moderat", "Până la limită"],
       "tip_input": "radiobutton"
     }
-  ]
+  ],
+  "reguli": [
+    { "daca": {"obiectiv": "Relaxare & Flexibilitate", "intensitate": "Lejer"}, "atunci": "Hatha Yoga", "descriere": "O practică blândă pentru minte și corp, ideală pentru eliminarea stresului." },
+    { "daca": {"obiectiv": "Slăbit intens", "intensitate": "Până la limită", "mediu": "În comunitate/Grup"}, "atunci": "Crossfit", "descriere": "Antrenament de înaltă intensitate care îți va testa toate limitele într-un grup motivat." },
+    { "daca": {"obiectiv": "Energie & Cardio", "mediu": "În comunitate/Grup"}, "atunci": "Zumba", "descriere": "Distracție pură prin dans care arde calorii fără să simți că faci efort." },
+    { "daca": {"obiectiv": "Tonifiere musculară", "mediu": "Acasă/Individual"}, "atunci": "Calisthenics", "descriere": "Folosește-ți propria greutate pentru a construi un corp atletic și puternic." },
+    { "daca": {"obiectiv": "Slăbit intens", "timp": "Limitat (1-2h)", "intensitate": "Până la limită"}, "atunci": "HIIT", "descriere": "High Intensity Interval Training: ardere maximă de grăsimi în timp record." },
+    { "daca": {"obiectiv": "Relaxare & Flexibilitate", "mediu": "În comunitate/Grup"}, "atunci": "Pilates", "descriere": "Controlul centrului corpului și respirație pentru o postură de invidiat." }
+  ],
+  "recomandare_default": {
+    "atunci": "Mers Sportiv",
+    "descriere": "Este cea mai sigură și eficientă metodă de a începe un stil de viață activ până găsim ceva specific."
+  }
 }
