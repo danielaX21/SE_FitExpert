@@ -1,41 +1,78 @@
 {
-  "nume_proiect": "FitExpert Pro",
+  "proiect": "FitExpert Pro v1.0",
   "intrebari": [
     {
       "id": "obiectiv",
-      "text": "Care este misiunea ta principală astăzi?",
-      "optiuni": ["Slăbit intens", "Tonifiere musculară", "Relaxare & Flexibilitate", "Energie & Cardio"],
+      "text": "Care este obiectivul tău principal?",
+      "optiuni": ["Slăbit intens", "Tonifiere musculară", "Relaxare & Flexibilitate", "Rezistență Cardio"],
+      "tip_input": "radiobutton"
+    },
+    {
+      "id": "experienta",
+      "text": "Nivelul tău actual de experiență:",
+      "optiuni": ["Începător", "Intermediar", "Avansat"],
       "tip_input": "radiobutton"
     },
     {
       "id": "timp",
-      "text": "Cât timp poți dedica săptămânal mișcării?",
-      "optiuni": ["Limitat (1-2h)", "Moderat (3-5h)", "Dedicat (5h+)"],
+      "text": "Câte ore poți dedica săptămânal sportului?",
+      "optiuni": ["1-2 ore", "3-5 ore", "5+ ore"],
       "tip_input": "radiobutton"
     },
     {
       "id": "mediu",
-      "text": "Unde te simți cel mai confortabil?",
-      "optiuni": ["Acasă/Individual", "În comunitate/Grup", "În aer liber"],
+      "text": "Unde preferi să te antrenezi de obicei?",
+      "optiuni": ["Acasă / Individual", "Sală de fitness / Grup", "În aer liber"],
       "tip_input": "radiobutton"
     },
     {
       "id": "intensitate",
-      "text": "Ce nivel de efort ești gata să depui?",
-      "optiuni": ["Lejer", "Moderat", "Până la limită"],
+      "text": "Ce nivel de intensitate cauți în antrenament?",
+      "optiuni": ["Scăzut", "Moderat", "Ridicată"],
       "tip_input": "radiobutton"
     }
   ],
   "reguli": [
-    { "daca": {"obiectiv": "Relaxare & Flexibilitate", "intensitate": "Lejer"}, "atunci": "Hatha Yoga", "descriere": "O practică blândă pentru minte și corp, ideală pentru eliminarea stresului." },
-    { "daca": {"obiectiv": "Slăbit intens", "intensitate": "Până la limită", "mediu": "În comunitate/Grup"}, "atunci": "Crossfit", "descriere": "Antrenament de înaltă intensitate care îți va testa toate limitele într-un grup motivat." },
-    { "daca": {"obiectiv": "Energie & Cardio", "mediu": "În comunitate/Grup"}, "atunci": "Zumba", "descriere": "Distracție pură prin dans care arde calorii fără să simți că faci efort." },
-    { "daca": {"obiectiv": "Tonifiere musculară", "mediu": "Acasă/Individual"}, "atunci": "Calisthenics", "descriere": "Folosește-ți propria greutate pentru a construi un corp atletic și puternic." },
-    { "daca": {"obiectiv": "Slăbit intens", "timp": "Limitat (1-2h)", "intensitate": "Până la limită"}, "atunci": "HIIT", "descriere": "High Intensity Interval Training: ardere maximă de grăsimi în timp record." },
-    { "daca": {"obiectiv": "Relaxare & Flexibilitate", "mediu": "În comunitate/Grup"}, "atunci": "Pilates", "descriere": "Controlul centrului corpului și respirație pentru o postură de invidiat." }
+    {
+      "daca": {"obiectiv": "Relaxare & Flexibilitate", "intensitate": "Scăzut", "experienta": "Începător"},
+      "atunci": "Hatha Yoga",
+      "justificare": "Fiind la început de drum și căutând relaxare, Hatha Yoga este ideală deoarece pune accent pe posturi statice și respirație, minimizând riscul de accidentare.",
+      "descriere": "O formă blândă de yoga axată pe echilibru și postură."
+    },
+    {
+      "daca": {"obiectiv": "Slăbit intens", "intensitate": "Ridicată", "timp": "5+ ore", "mediu": "Sală de fitness / Grup"},
+      "atunci": "Crossfit",
+      "justificare": "Combinația de intensitate ridicată, volum mare de timp și mediul competitiv de grup face din Crossfit cea mai eficientă metodă de ardere calorică.",
+      "descriere": "Program de fitness funcțional bazat pe mișcări variate executate la intensitate mare."
+    },
+    {
+      "daca": {"obiectiv": "Tonifiere musculară", "mediu": "Acasă / Individual", "experienta": "Intermediar"},
+      "atunci": "Calisthenics",
+      "justificare": "Pentru un nivel intermediar, antrenamentul cu greutatea proprie (Calisthenics) dezvoltă forța și masa musculară fără a necesita echipament de sală.",
+      "descriere": "Exerciții bazate pe greutatea corpului pentru forță și control."
+    },
+    {
+      "daca": {"obiectiv": "Rezistență Cardio", "mediu": "În aer liber", "experienta": "Avansat"},
+      "atunci": "Trail Running",
+      "justificare": "Nivelul avansat și preferința pentru exterior indică o capacitate bună de efort pe teren accidentat, îmbunătățind capacitatea pulmonară.",
+      "descriere": "Alergare pe poteci și teren variat pentru anduranță maximă."
+    },
+    {
+      "daca": {"obiectiv": "Slăbit intens", "timp": "1-2 ore", "intensitate": "Ridicată"},
+      "atunci": "HIIT (High Intensity Interval Training)",
+      "justificare": "Când timpul este limitat dar dorința de slăbire este mare, intervalele de intensitate ridicată maximizează arderea grăsimilor post-antrenament.",
+      "descriere": "Sesiuni scurte și explozive de exerciții cu pauze minime."
+    },
+    {
+      "daca": {"obiectiv": "Relaxare & Flexibilitate", "mediu": "Sală de fitness / Grup", "intensitate": "Moderat"},
+      "atunci": "Pilates",
+      "justificare": "Pilates în grup oferă structură și corectare profesională pentru întărirea zonei mediene și relaxare activă.",
+      "descriere": "Sistem de exerciții care pune accent pe control, precizie și respirație."
+    }
   ],
-  "recomandare_default": {
-    "atunci": "Mers Sportiv",
-    "descriere": "Este cea mai sigură și eficientă metodă de a începe un stil de viață activ până găsim ceva specific."
+  "default": {
+    "atunci": "Mers alert",
+    "justificare": "Nu am găsit o corelație exactă între toate premisele tale, așa că îți recomandăm mersul alert ca punct de pornire sigur.",
+    "descriere": "Cea mai accesibilă formă de exercițiu fizic pentru sănătatea cardiovasculară."
   }
 }
