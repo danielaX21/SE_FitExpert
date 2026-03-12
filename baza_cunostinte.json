@@ -1,0 +1,23 @@
+{
+  "proiect": "FitExpert",
+  "intrebari": [
+    {
+      "id": "obiectiv",
+      "text": "Care este obiectivul tău principal?",
+      "optiuni": ["slăbit", "tonifiere", "relaxare"],
+      "tip_input": "radiobutton"
+    },
+    {
+      "id": "timp",
+      "text": "Cât timp poți aloca pe săptămână?",
+      "optiuni": ["sub 3 ore", "3-5 ore", "peste 5 ore"],
+      "tip_input": "radiobutton"
+    },
+    {
+      "id": "preferinta",
+      "text": "Cum preferi să te antrenezi?",
+      "optiuni": ["individual", "în grup"],
+      "tip_input": "radiobutton"
+    }
+  ]
+}
