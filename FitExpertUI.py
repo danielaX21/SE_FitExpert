@@ -1,51 +1,69 @@
 """
-interfata.py  –  Interfața grafică (Tkinter)
+interfata.py  -  Interfata grafica (Tkinter)
 Autor: Ispas Daniela-Estera
-Rol:   UI dinamic, navigare întrebări, afișare rezultate
+Rol:   UI dinamic, navigare intrebari, afisare rezultate
+
+Importa MotorInferenta din inferenta.py (Iulia).
+Toate intrebarile si optiunile sunt incarcate din JSON,
+nimic nu este hardcodat in interfata.
 """
 
 import tkinter as tk
 from inferenta import MotorInferenta, incarca_baza
 
-
 # ─────────────────────────────────────────────
 #  PALETA & CONSTANTE VIZUALE
 # ─────────────────────────────────────────────
-BG           = "#050508"
-CARD_BG      = "#0E0E18"
-CARD_BORDER  = "#1C1C30"
-ACCENT       = "#C8F545"
-ACCENT2      = "#7B61FF"
-ACCENT3      = "#FF4D6A"
-TEXT_HI      = "#F5F5FF"
-TEXT_LO      = "#6B6B8A"
-SEL_BG       = "#1A2200"
-SEL_BORDER   = "#C8F545"
+BG          = "#050508"
+CARD_BG     = "#0E0E18"
+CARD_BORDER = "#1C1C30"
+ACCENT      = "#C8F545"
+ACCENT2     = "#7B61FF"
+ACCENT3     = "#FF4D6A"
+TEXT_HI     = "#F5F5FF"
+TEXT_LO     = "#6B6B8A"
+SEL_BG      = "#1A2200"
+SEL_BORDER  = "#C8F545"
 
-FONT_TITLE   = ("Courier New", 26, "bold")
-FONT_MONO    = ("Courier New", 10)
-FONT_Q       = ("Georgia", 17, "bold")
-FONT_SUB     = ("Georgia", 11, "italic")
-FONT_OPT     = ("Helvetica", 12)
-FONT_TINY    = ("Courier New", 8)
-FONT_NUM     = ("Courier New", 38, "bold")
+FONT_TITLE  = ("Courier New", 26, "bold")
+FONT_MONO   = ("Courier New", 10)
+FONT_Q      = ("Georgia", 17, "bold")
+FONT_SUB    = ("Georgia", 11, "italic")
+FONT_OPT    = ("Helvetica", 12)
+FONT_TINY   = ("Courier New", 8)
+FONT_NUM    = ("Courier New", 38, "bold")
 
 
 # ─────────────────────────────────────────────
-#  WIDGET – Bară de progres
+#  WIDGET – Bara de progres animata
 # ─────────────────────────────────────────────
 class ProgressBar(tk.Canvas):
+    """
+    Bara de progres vizuala care arata avansul utilizatorului
+    prin setul de intrebari.
+
+    Atribute:
+        total  (int): numarul total de intrebari
+        _step  (int): pasul curent afisat
+    """
+
     def __init__(self, parent, total, **kw):
         kw.setdefault("bg", BG)
         super().__init__(parent, height=3,
                          highlightthickness=0, **kw)
-        self.total  = total
-        self._step  = 0
+        self.total = total
+        self._step = 0
 
     def set(self, step):
+        """
+        Actualizeaza bara la pasul dat.
+
+        Parametri:
+            step (int): indexul intrebarii curente (0-based)
+        """
         self._step = step
         self.delete("all")
-        w = self.winfo_width() or 600
+        w     = self.winfo_width() or 600
         ratio = step / max(self.total, 1)
         self.create_rectangle(0, 0, w, 3, fill=CARD_BG, outline="")
         if ratio > 0:
@@ -54,9 +72,23 @@ class ProgressBar(tk.Canvas):
 
 
 # ─────────────────────────────────────────────
-#  WIDGET – Rând opțiune radio custom
+#  WIDGET – Rand optiune radio custom
 # ─────────────────────────────────────────────
 class OptionRow(tk.Frame):
+    """
+    Frame personalizat care reprezinta o optiune de raspuns.
+    Inlocuieste Radiobutton standard cu un design mai modern:
+    - litera index (A, B, C...)
+    - text descriptiv
+    - indicator circular de selectie
+
+    Atribute:
+        var       (StringVar): variabila tkinter partajata intre optiuni
+        value     (str):       valoarea acestei optiuni
+        callback  (callable):  functia apelata la selectie
+        _selected (bool):      starea curenta de selectie
+    """
+
     def __init__(self, parent, text, var, value, callback, index=0):
         super().__init__(parent, bg=CARD_BG,
                          highlightthickness=1,
@@ -67,7 +99,7 @@ class OptionRow(tk.Frame):
         self.callback  = callback
         self._selected = False
 
-        idx_label = chr(65 + index)   # A, B, C, D…
+        idx_label = chr(65 + index)  # A, B, C, D...
         self.lbl_idx = tk.Label(self, text=idx_label, fg=TEXT_LO,
                                 bg=CARD_BG, font=FONT_TINY,
                                 width=3, anchor="center")
@@ -103,6 +135,7 @@ class OptionRow(tk.Frame):
             self.config(highlightbackground=CARD_BORDER)
 
     def _draw_dot(self, selected):
+        """Deseneaza indicatorul circular de selectie."""
         self.dot.delete("all")
         if selected:
             self.dot.config(bg=SEL_BG)
@@ -116,6 +149,7 @@ class OptionRow(tk.Frame):
                                  outline=TEXT_LO, width=1, fill="")
 
     def select(self):
+        """Marcheaza vizual aceasta optiune ca selectata."""
         self._selected = True
         self.config(bg=SEL_BG, highlightbackground=SEL_BORDER)
         self.lbl.config(bg=SEL_BG, fg=TEXT_HI)
@@ -124,6 +158,7 @@ class OptionRow(tk.Frame):
         self._draw_dot(True)
 
     def deselect(self):
+        """Reseteaza vizual aceasta optiune la starea neselectata."""
         self._selected = False
         self.config(bg=CARD_BG, highlightbackground=CARD_BORDER)
         self.lbl.config(bg=CARD_BG, fg=TEXT_HI)
@@ -133,27 +168,44 @@ class OptionRow(tk.Frame):
 
 
 # ─────────────────────────────────────────────
-#  APLICAȚIA PRINCIPALĂ
+#  APLICATIA PRINCIPALA
 # ─────────────────────────────────────────────
 class FitExpertUI:
+    """
+    Aplicatia grafica principala FitExpert Pro.
+
+    Coordoneaza fluxul:
+      1. Incarca baza de cunostinte si instantiaza motorul (Iulia)
+      2. Afiseaza intrebarile pe rand (dinamic, din JSON)
+      3. Colecteaza raspunsurile utilizatorului
+      4. Apeleaza motorul de inferenta
+      5. Afiseaza rezultatele cu explicatii human-readable si traseu tehnic
+
+    Atribute:
+        root     (tk.Tk):        fereastra principala
+        date     (dict):         baza de cunostinte
+        motor    (MotorInferenta): motorul de inferenta (Iulia)
+        index    (int):          indexul intrebarii curente
+        fapte    (dict):         raspunsurile colectate
+        opt_rows (list):         lista widget-urilor de optiuni curente
+    """
 
     def __init__(self, root):
         self.root  = root
         self.root.title("FitExpert Pro")
-        self.root.geometry("680x820")
+        self.root.geometry("720x860")
         self.root.configure(bg=BG)
-        self.root.resizable(False, False)
+        self.root.resizable(True, True)
+        self.root.minsize(620, 600)
 
-        # ── Încarcă baza și inițializează motorul (Iulia) ──
         try:
             baza = incarca_baza("baza_cunostinte.json")
         except Exception as e:
-            self._eroare(f"Eroare la încărcarea bazei de cunoștințe:\n{e}")
+            self._eroare(f"Eroare la incarcarea bazei de cunostinte:\n{e}")
             return
 
-        self.date   = baza
-        self.motor  = MotorInferenta(baza)   # <-- motorul Iuliei
-
+        self.date     = baza
+        self.motor    = MotorInferenta(baza)
         self.index    = 0
         self.fapte    = {}
         self.opt_rows = []
@@ -161,11 +213,11 @@ class FitExpertUI:
         self._build_ui()
         self._render_question()
 
-    # ── Construiește shell-ul UI ──────────────
+    # ── Construieste shell-ul UI ──────────────
     def _build_ui(self):
+        """Construieste structura de baza a ferestrei: header, bara progres, content, footer."""
         total = len(self.date["intrebari"])
 
-        # Header
         hdr = tk.Frame(self.root, bg=BG)
         hdr.pack(fill="x", padx=40, pady=(30, 0))
 
@@ -177,18 +229,15 @@ class FitExpertUI:
                                  fg=TEXT_LO, bg=BG, font=FONT_MONO)
         self.lbl_step.pack(side="right")
 
-        # Progress bar
         self.prog = ProgressBar(self.root, total)
         self.prog.pack(fill="x", pady=(10, 0))
         self.root.after(100, lambda: self.prog.set(0))
 
         tk.Frame(self.root, bg=CARD_BORDER, height=1).pack(fill="x")
 
-        # Zona de conținut (întrebări / rezultate)
         self.content = tk.Frame(self.root, bg=BG)
         self.content.pack(fill="both", expand=True, padx=40, pady=20)
 
-        # Footer
         foot = tk.Frame(self.root, bg=BG)
         foot.pack(fill="x", padx=40, pady=(0, 30))
 
@@ -197,7 +246,7 @@ class FitExpertUI:
         self.err_lbl.pack(side="left")
 
         self.btn = tk.Button(
-            foot, text="CONTINUĂ  →",
+            foot, text="CONTINUA  ->",
             command=self._handle_next,
             bg=ACCENT, fg=BG,
             font=("Courier New", 11, "bold"),
@@ -207,8 +256,12 @@ class FitExpertUI:
         )
         self.btn.pack(side="right")
 
-    # ── Afișează întrebarea curentă ───────────
+    # ── Afiseaza intrebarea curenta ───────────
     def _render_question(self):
+        """
+        Sterge continutul precedent si afiseaza intrebarea curenta
+        cu toate optiunile sale, incarcate din JSON.
+        """
         for w in self.content.winfo_children():
             w.destroy()
         self.opt_rows = []
@@ -221,17 +274,14 @@ class FitExpertUI:
         self.prog.set(self.index)
         self.root.after(50, lambda: self.prog.set(self.index + 1))
 
-        # Număr mare decorativ
         tk.Label(self.content, text=f"{self.index+1:02d}",
                  fg=CARD_BORDER, bg=BG, font=FONT_NUM).pack(anchor="w")
 
-        # Textul întrebării
         tk.Label(self.content, text=q["text"],
                  fg=TEXT_HI, bg=BG, font=FONT_Q,
-                 wraplength=580, justify="left", anchor="w").pack(
+                 wraplength=560, justify="left", anchor="w").pack(
                      fill="x", pady=(4, 20))
 
-        # Opțiuni
         self.selection = tk.StringVar(value="__none__")
 
         for i, opt in enumerate(q["optiuni"]):
@@ -242,6 +292,7 @@ class FitExpertUI:
             self.opt_rows.append((row, opt))
 
     def _on_select(self):
+        """Actualizeaza vizual toate optiunile cand utilizatorul selecteaza una."""
         self.err_lbl.config(text="")
         val = self.selection.get()
         for row, opt in self.opt_rows:
@@ -252,9 +303,13 @@ class FitExpertUI:
 
     # ── Navigare ─────────────────────────────
     def _handle_next(self):
+        """
+        Gestioneaza click-ul pe butonul Continua.
+        Valideaza selectia, salveaza raspunsul si avanseaza.
+        """
         if self.selection.get() == "__none__":
             self.err_lbl.config(
-                text="⚠  Selectează o opțiune pentru a continua.")
+                text="  Selecteaza o optiune pentru a continua.")
             return
 
         qid = self.date["intrebari"][self.index]["id"]
@@ -268,14 +323,24 @@ class FitExpertUI:
 
     # ── Ecranul de rezultate ──────────────────
     def _show_results(self):
+        """
+        Apeleaza motorul de inferenta si afiseaza rezultatele.
+        Structura ecranului:
+          1. Explicatii human-readable (Iulia)
+          2. Top 3 recomandari cu score si justificare
+          3. Traseu tehnic de inferenta (pentru evaluare academica)
+        """
         for w in self.content.winfo_children():
             w.destroy()
-        self.btn.config(text="RESTART  ↺", command=self._restart)
+        self.btn.config(text="RESTART  <-", command=self._restart)
 
-        # ── Apelăm motorul Iuliei ──
-        rezultate, explicatie = self.motor.ruleaza(self.fapte)
+        # Apelam motorul Iuliei
+        rezultate, traseu_tehnic = self.motor.ruleaza(self.fapte)
+        explicatii_human = self.motor.genereaza_explicatii_human(
+            self.fapte, rezultate
+        )
 
-        # Scroll canvas
+        # Scroll canvas cu MouseWheel functional pe TOATE widget-urile
         canvas = tk.Canvas(self.content, bg=BG, highlightthickness=0)
         sb = tk.Scrollbar(self.content, orient="vertical",
                           command=canvas.yview)
@@ -285,27 +350,66 @@ class FitExpertUI:
 
         inner = tk.Frame(canvas, bg=BG)
         win_id = canvas.create_window((0, 0), window=inner,
-                                      anchor="nw", width=580)
-        inner.bind("<Configure>",
-                   lambda e: canvas.configure(
-                       scrollregion=canvas.bbox("all")))
-        canvas.bind("<Configure>",
-                    lambda e: canvas.itemconfig(win_id, width=e.width))
-        inner.bind("<MouseWheel>",
-                   lambda e: canvas.yview_scroll(
-                       -1 if e.delta > 0 else 1, "units"))
+                                      anchor="nw")
 
-        # Titlu
-        tk.Label(inner, text="REZULTATELE TALE",
+        # Actualizeaza scrollregion cand se schimba continutul
+        def _on_inner_configure(e):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+
+        # Actualizeaza latimea inner-ului cand se redimensioneaza fereastra
+        def _on_canvas_configure(e):
+            canvas.itemconfig(win_id, width=e.width)
+            # Actualizeaza si wraplength-ul tuturor label-urilor din inner
+            for widget in inner.winfo_children():
+                _update_wraplength(widget, e.width - 60)
+
+        def _update_wraplength(widget, new_width):
+            if isinstance(widget, tk.Label):
+                try:
+                    widget.config(wraplength=max(200, new_width))
+                except Exception:
+                    pass
+            if isinstance(widget, tk.Frame):
+                for child in widget.winfo_children():
+                    _update_wraplength(child, new_width - 20)
+
+        inner.bind("<Configure>", _on_inner_configure)
+        canvas.bind("<Configure>", _on_canvas_configure)
+
+        # Scroll cu mouse-ul — bind pe root ca sa prinda TOATE widget-urile
+        def _scroll(e):
+            canvas.yview_scroll(-1 if e.delta > 0 else 1, "units")
+
+        # Linux foloseste Button-4/5 in loc de MouseWheel
+        self.root.bind_all("<MouseWheel>", _scroll)
+        self.root.bind_all("<Button-4>", lambda e: canvas.yview_scroll(-1, "units"))
+        self.root.bind_all("<Button-5>", lambda e: canvas.yview_scroll(1, "units"))
+
+        # ── Sectiunea 1: Explicatii human-readable ──
+        tk.Label(inner, text="DE CE ACESTE RECOMANDARI?",
                  fg=ACCENT, bg=BG,
-                 font=("Courier New", 12, "bold")).pack(
-                     anchor="w", pady=(10, 4))
-        tk.Label(inner,
-                 text="Sistemul expert a analizat profilul tău și îți recomandă:",
-                 fg=TEXT_LO, bg=BG, font=FONT_SUB).pack(
-                     anchor="w", pady=(0, 18))
+                 font=("Courier New", 10, "bold")).pack(
+                     anchor="w", pady=(10, 6))
 
-        MEDAL = ["🥇", "🥈", "🥉"]
+        expl_frame = tk.Frame(inner, bg=CARD_BG,
+                              highlightthickness=1,
+                              highlightbackground=CARD_BORDER)
+        expl_frame.pack(fill="x", pady=(0, 16))
+
+        for linie in explicatii_human:
+            tk.Label(expl_frame, text=linie,
+                     fg=TEXT_HI, bg=CARD_BG,
+                     font=FONT_SUB, wraplength=500,
+                     justify="left").pack(
+                         anchor="w", padx=16, pady=5)
+
+        # ── Sectiunea 2: Top 3 recomandari ──
+        tk.Label(inner, text="RECOMANDARI PERSONALIZATE",
+                 fg=ACCENT, bg=BG,
+                 font=("Courier New", 10, "bold")).pack(
+                     anchor="w", pady=(4, 6))
+
+        MEDAL = ["   ", "   ", "   "]
 
         for i, r in enumerate(rezultate):
             pct  = int(r["score"] * 100)
@@ -313,24 +417,25 @@ class FitExpertUI:
                             highlightthickness=1,
                             highlightbackground=(
                                 ACCENT if i == 0 else CARD_BORDER))
-            card.pack(fill="x", pady=8)
+            card.pack(fill="x", pady=6)
 
             top = tk.Frame(card, bg=CARD_BG)
-            top.pack(fill="x", padx=18, pady=(16, 4))
+            top.pack(fill="x", padx=18, pady=(14, 4))
 
-            tk.Label(top, text=MEDAL[i], bg=CARD_BG,
-                     font=("Segoe UI Emoji", 20)).pack(side="left")
-            tk.Label(top, text=r["sport"],
+            medal_texts = ["#1", "#2", "#3"]
+            tk.Label(top, text=medal_texts[i], bg=CARD_BG,
+                     fg=ACCENT if i == 0 else ACCENT2,
+                     font=("Courier New", 12, "bold")).pack(side="left")
+            tk.Label(top, text="  " + r["sport"],
                      fg=ACCENT if i == 0 else TEXT_HI,
                      bg=CARD_BG,
-                     font=("Georgia", 15, "bold")).pack(
-                         side="left", padx=12)
+                     font=("Georgia", 14, "bold")).pack(
+                         side="left", padx=8)
             tk.Label(top, text=f"{pct}%",
                      fg=ACCENT if i == 0 else ACCENT2,
                      bg=CARD_BG,
                      font=("Courier New", 13, "bold")).pack(side="right")
 
-            # Mini progress bar
             pbar = tk.Canvas(card, height=3, bg=CARD_BG,
                              highlightthickness=0)
             pbar.pack(fill="x", padx=18, pady=(2, 8))
@@ -343,14 +448,14 @@ class FitExpertUI:
 
             tk.Label(card, text=r["justificare"],
                      fg=TEXT_LO, bg=CARD_BG,
-                     font=FONT_SUB, wraplength=510,
+                     font=FONT_SUB, wraplength=480,
                      justify="left").pack(
-                         anchor="w", padx=18, pady=(0, 16))
+                         anchor="w", padx=18, pady=(0, 14))
 
-        # Traseu de inferență
+        # ── Sectiunea 3: Traseu tehnic Forward Chaining ──
         tk.Frame(inner, bg=CARD_BORDER, height=1).pack(
-            fill="x", pady=(24, 12))
-        tk.Label(inner, text="TRASEU DE INFERENȚĂ (Forward Chaining)",
+            fill="x", pady=(20, 10))
+        tk.Label(inner, text="TRASEU TEHNIC DE INFERENTA (Forward Chaining)",
                  fg=TEXT_LO, bg=BG,
                  font=("Courier New", 9, "bold")).pack(anchor="w")
 
@@ -359,29 +464,43 @@ class FitExpertUI:
                            highlightbackground=CARD_BORDER)
         trace_f.pack(fill="x", pady=(6, 20))
 
-        pasi = explicatie if explicatie else [
-            "Nicio regulă intermediară activată → recomandare directă."]
+        pasi = traseu_tehnic if traseu_tehnic else [
+            "Nicio regula intermediara activata -> recomandare directa."]
         for step in pasi:
-            tk.Label(trace_f, text="›  " + step,
-                     fg=TEXT_LO, bg=CARD_BG,
+            culoare = (ACCENT    if "[FAPT NOU]"        in step else
+                       ACCENT2   if "[REGULA ACTIVA]"   in step else
+                       ACCENT3   if "[CONFLICT"         in step else
+                       TEXT_LO)
+            tk.Label(trace_f, text="  " + step,
+                     fg=culoare, bg=CARD_BG,
                      font=FONT_TINY, anchor="w",
+                     wraplength=560,
                      justify="left").pack(
                          fill="x", padx=14, pady=2)
 
     # ── Restart ───────────────────────────────
     def _restart(self):
+        """Reseteaza complet aplicatia la starea initiala."""
+        # Curatam binding-urile de scroll inainte de restart
+        try:
+            self.root.unbind_all("<MouseWheel>")
+            self.root.unbind_all("<Button-4>")
+            self.root.unbind_all("<Button-5>")
+        except Exception:
+            pass
         for w in self.root.winfo_children():
             w.destroy()
         FitExpertUI(self.root)
 
     # ── Eroare ───────────────────────────────
     def _eroare(self, msg):
+        """Afiseaza o fereastra de eroare cu mesajul dat."""
         win = tk.Toplevel(self.root)
         win.title("Eroare")
         win.configure(bg=BG)
         tk.Label(win, text=msg, fg=ACCENT3, bg=BG,
                  font=FONT_OPT, padx=30, pady=30).pack()
-        tk.Button(win, text="Închide", command=win.destroy,
+        tk.Button(win, text="Inchide", command=win.destroy,
                   bg=ACCENT3, fg=BG).pack(pady=10)
 
 
