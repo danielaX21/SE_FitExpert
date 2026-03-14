@@ -1,78 +1,186 @@
 {
-  "proiect": "FitExpert Pro v1.0",
   "intrebari": [
     {
       "id": "obiectiv",
       "text": "Care este obiectivul tău principal?",
-      "optiuni": ["Slăbit intens", "Tonifiere musculară", "Relaxare & Flexibilitate", "Rezistență Cardio"],
-      "tip_input": "radiobutton"
+      "optiuni": [
+        "Slăbit intens",
+        "Tonifiere musculară",
+        "Creștere în masă musculară",
+        "Relaxare & Flexibilitate",
+        "Sănătate Mentală",
+        "Îmbunătățire rezistență cardio",
+        "Reabilitare / Recuperare"
+      ]
     },
     {
       "id": "experienta",
-      "text": "Nivelul tău actual de experiență:",
-      "optiuni": ["Începător", "Intermediar", "Avansat"],
-      "tip_input": "radiobutton"
+      "text": "Care este nivelul tău de experiență sportivă?",
+      "optiuni": [
+        "Începător",
+        "Intermediar",
+        "Avansat"
+      ]
     },
     {
       "id": "timp",
-      "text": "Câte ore poți dedica săptămânal sportului?",
-      "optiuni": ["1-2 ore", "3-5 ore", "5+ ore"],
-      "tip_input": "radiobutton"
+      "text": "Câte ore pe săptămână poți aloca antrenamentului?",
+      "optiuni": [
+        "1-2 ore",
+        "3-4 ore",
+        "5-7 ore",
+        "8+ ore"
+      ]
     },
     {
       "id": "mediu",
-      "text": "Unde preferi să te antrenezi de obicei?",
-      "optiuni": ["Acasă / Individual", "Sală de fitness / Grup", "În aer liber"],
-      "tip_input": "radiobutton"
+      "text": "Unde preferi să te antrenezi?",
+      "optiuni": [
+        "Acasă / Individual",
+        "Sală de fitness / Grup",
+        "În aer liber",
+        "În apă",
+        "Studio specializat"
+      ]
     },
     {
       "id": "intensitate",
-      "text": "Ce nivel de intensitate cauți în antrenament?",
-      "optiuni": ["Scăzut", "Moderat", "Ridicată"],
-      "tip_input": "radiobutton"
+      "text": "Ce intensitate preferi?",
+      "optiuni": [
+        "Scăzută – mă mișc ușor, fără presiune",
+        "Moderată – transpir, dar controlez ritmul",
+        "Ridicată – împing limitele, vreau rezultate rapide"
+      ]
+    },
+    {
+      "id": "sanatate",
+      "text": "Ai vreo condiție medicală sau fizică de luat în considerare?",
+      "optiuni": [
+        "Nu, sunt complet sănătos/ă",
+        "Dureri ușoare (spate, genunchi, etc.)",
+        "Probleme articulare / mobilitate redusă",
+        "Recuperare post-accidentare"
+      ]
+    },
+    {
+      "id": "social",
+      "text": "Preferi să te antrenezi singur/ă sau în grup?",
+      "optiuni": [
+        "Singur/ă – îmi place liniștea și concentrarea",
+        "Cu un partener – cineva care mă motivează",
+        "În grup mic (3-6 persoane)",
+        "Clasă mare – energia grupului mă energizează"
+      ]
+    },
+    {
+      "id": "motivatie",
+      "text": "Ce te motivează cel mai mult?",
+      "optiuni": [
+        "Rezultate vizibile rapide",
+        "Progres gradual și sănătos",
+        "Distracție și socializare",
+        "Provocare mentală și tehnică",
+        "Conexiunea minte-corp"
+      ]
     }
   ],
+
   "reguli": [
-    {
-      "daca": {"obiectiv": "Relaxare & Flexibilitate", "intensitate": "Scăzut", "experienta": "Începător"},
-      "atunci": "Hatha Yoga",
-      "justificare": "Fiind la început de drum și căutând relaxare, Hatha Yoga este ideală deoarece pune accent pe posturi statice și respirație, minimizând riscul de accidentare.",
-      "descriere": "O formă blândă de yoga axată pe echilibru și postură."
-    },
-    {
-      "daca": {"obiectiv": "Slăbit intens", "intensitate": "Ridicată", "timp": "5+ ore", "mediu": "Sală de fitness / Grup"},
-      "atunci": "Crossfit",
-      "justificare": "Combinația de intensitate ridicată, volum mare de timp și mediul competitiv de grup face din Crossfit cea mai eficientă metodă de ardere calorică.",
-      "descriere": "Program de fitness funcțional bazat pe mișcări variate executate la intensitate mare."
-    },
-    {
-      "daca": {"obiectiv": "Tonifiere musculară", "mediu": "Acasă / Individual", "experienta": "Intermediar"},
-      "atunci": "Calisthenics",
-      "justificare": "Pentru un nivel intermediar, antrenamentul cu greutatea proprie (Calisthenics) dezvoltă forța și masa musculară fără a necesita echipament de sală.",
-      "descriere": "Exerciții bazate pe greutatea corpului pentru forță și control."
-    },
-    {
-      "daca": {"obiectiv": "Rezistență Cardio", "mediu": "În aer liber", "experienta": "Avansat"},
-      "atunci": "Trail Running",
-      "justificare": "Nivelul avansat și preferința pentru exterior indică o capacitate bună de efort pe teren accidentat, îmbunătățind capacitatea pulmonară.",
-      "descriere": "Alergare pe poteci și teren variat pentru anduranță maximă."
-    },
-    {
-      "daca": {"obiectiv": "Slăbit intens", "timp": "1-2 ore", "intensitate": "Ridicată"},
-      "atunci": "HIIT (High Intensity Interval Training)",
-      "justificare": "Când timpul este limitat dar dorința de slăbire este mare, intervalele de intensitate ridicată maximizează arderea grăsimilor post-antrenament.",
-      "descriere": "Sesiuni scurte și explozive de exerciții cu pauze minime."
-    },
-    {
-      "daca": {"obiectiv": "Relaxare & Flexibilitate", "mediu": "Sală de fitness / Grup", "intensitate": "Moderat"},
-      "atunci": "Pilates",
-      "justificare": "Pilates în grup oferă structură și corectare profesională pentru întărirea zonei mediene și relaxare activă.",
-      "descriere": "Sistem de exerciții care pune accent pe control, precizie și respirație."
-    }
+
+    { "daca":{"obiectiv":"Slăbit intens"}, "atunci_fapt":{"tip":"Cardio"}, "justificare":"" },
+    { "daca":{"obiectiv":"Tonifiere musculară"}, "atunci_fapt":{"tip":"Strength"}, "justificare":"" },
+    { "daca":{"obiectiv":"Creștere în masă musculară"}, "atunci_fapt":{"tip":"Hypertrophy"}, "justificare":"" },
+    { "daca":{"obiectiv":"Relaxare & Flexibilitate"}, "atunci_fapt":{"tip":"Flexibility"}, "justificare":"" },
+    { "daca":{"obiectiv":"Sănătate Mentală"}, "atunci_fapt":{"tip":"MindBody"}, "justificare":"" },
+    { "daca":{"obiectiv":"Îmbunătățire rezistență cardio"}, "atunci_fapt":{"tip":"Endurance"}, "justificare":"" },
+    { "daca":{"obiectiv":"Reabilitare / Recuperare"}, "atunci_fapt":{"tip":"Rehab"}, "justificare":"" },
+
+    { "daca":{"sanatate":"Dureri ușoare (spate, genunchi, etc.)"}, "atunci_fapt":{"restrictie":"impact_scazut"}, "justificare":"" },
+    { "daca":{"sanatate":"Probleme articulare / mobilitate redusă"}, "atunci_fapt":{"restrictie":"impact_scazut"}, "justificare":"" },
+    { "daca":{"sanatate":"Recuperare post-accidentare"}, "atunci_fapt":{"restrictie":"reabilitare"}, "justificare":"" },
+
+    { "daca":{"social":"Singur/ă – îmi place liniștea și concentrarea"}, "atunci_fapt":{"stil_social":"solo"}, "justificare":"" },
+    { "daca":{"social":"Cu un partener – cineva care mă motivează"}, "atunci_fapt":{"stil_social":"duo"}, "justificare":"" },
+    { "daca":{"social":"În grup mic (3-6 persoane)"}, "atunci_fapt":{"stil_social":"grup_mic"}, "justificare":"" },
+    { "daca":{"social":"Clasă mare – energia grupului mă energizează"}, "atunci_fapt":{"stil_social":"grup_mare"}, "justificare":"" },
+
+    { "daca":{"motivatie":"Rezultate vizibile rapide"}, "atunci_fapt":{"ritm":"rapid"}, "justificare":"" },
+    { "daca":{"motivatie":"Progres gradual și sănătos"}, "atunci_fapt":{"ritm":"gradual"}, "justificare":"" },
+    { "daca":{"motivatie":"Distracție și socializare"}, "atunci_fapt":{"ritm":"distractiv"}, "justificare":"" },
+    { "daca":{"motivatie":"Provocare mentală și tehnică"}, "atunci_fapt":{"ritm":"tehnic"}, "justificare":"" },
+    { "daca":{"motivatie":"Conexiunea minte-corp"}, "atunci_fapt":{"ritm":"mindful"}, "justificare":"" },
+
+    { "daca":{"tip":"Cardio","intensitate":"Ridicată – împing limitele, vreau rezultate rapide","mediu":"Sală de fitness / Grup"}, "atunci":"HIIT în Grup", "justificare":"Combini energia sălii cu antrenamentul de intensitate maximă – ardere calorică record.", "confidence":0.97 },
+    { "daca":{"tip":"Cardio","intensitate":"Ridicată – împing limitele, vreau rezultate rapide","mediu":"Acasă / Individual"}, "atunci":"Home HIIT", "justificare":"Intervale de intensitate maximă la tine acasă, zero echipament necesar.", "confidence":0.95 },
+    { "daca":{"tip":"Cardio","intensitate":"Ridicată – împing limitele, vreau rezultate rapide","experienta":"Avansat"}, "atunci":"Boxing / Kickboxing", "justificare":"Cardio exploziv cu beneficii tehnice – reflexe, coordonare, putere.", "confidence":0.94 },
+    { "daca":{"tip":"Cardio","intensitate":"Ridicată – împing limitele, vreau rezultate rapide","mediu":"Studio specializat"}, "atunci":"Spinning (Indoor Cycling)", "justificare":"Clasele de spinning îți vor testa limitele și arde până la 700 kcal/oră.", "confidence":0.93 },
+    { "daca":{"tip":"Cardio","mediu":"În aer liber","timp":"5-7 ore"}, "atunci":"Trail Running", "justificare":"Alergare pe trasee naturale – cardio + aventură + conexiune cu natura.", "confidence":0.92 },
+    { "daca":{"tip":"Cardio","mediu":"În aer liber","experienta":"Începător"}, "atunci":"Jogging", "justificare":"Cel mai natural mod de a construi rezistența cardiovasculară pas cu pas.", "confidence":0.90 },
+    { "daca":{"tip":"Cardio","mediu":"În aer liber","timp":"8+ ore"}, "atunci":"Cycling pe Distanță Lungă", "justificare":"Parcurgi distanțe mari, îți antrenezi inima și descoperi peisaje noi.", "confidence":0.91 },
+    { "daca":{"tip":"Cardio","intensitate":"Moderată – transpir, dar controlez ritmul","mediu":"Sală de fitness / Grup"}, "atunci":"Zumba", "justificare":"Cardio deghizat în dans – arzi calorii fără să simți că te antrenezi.", "confidence":0.89 },
+    { "daca":{"tip":"Cardio","intensitate":"Moderată – transpir, dar controlez ritmul","stil_social":"grup_mare"}, "atunci":"Aerobic / Step Aerobics", "justificare":"Clasă dinamică, muzică antrenantă, energie de grup pentru ardere calorică.", "confidence":0.88 },
+    { "daca":{"tip":"Cardio","restrictie":"impact_scazut"}, "atunci":"Cycling Staționar", "justificare":"Cardio eficient fără presiune pe articulații – perfect pentru orice condiție fizică.", "confidence":0.92 },
+    { "daca":{"tip":"Cardio","mediu":"În apă"}, "atunci":"Înot (program intensiv)", "justificare":"Cel mai complet antrenament cardio – lucrezi tot corpul fără impact.", "confidence":0.93 },
+
+    { "daca":{"tip":"Strength","experienta":"Începător","mediu":"Sală de fitness / Grup"}, "atunci":"Full Body Workout (Sală)", "justificare":"Trei sesiuni pe săptămână, exerciții de bază cu greutăți ușoare – fundația perfectă.", "confidence":0.88 },
+    { "daca":{"tip":"Strength","experienta":"Începător","mediu":"Acasă / Individual"}, "atunci":"Calisthenics pentru Începători", "justificare":"Flotări, genuflexiuni, tracțiuni – construiești forță reală cu greutatea corpului.", "confidence":0.87 },
+    { "daca":{"tip":"Strength","experienta":"Intermediar","intensitate":"Moderată – transpir, dar controlez ritmul"}, "atunci":"Bodybuilding (Hipertrofie)", "justificare":"Programe split pentru fiecare grupă musculară – sculptura corpului tău.", "confidence":0.91 },
+    { "daca":{"tip":"Strength","experienta":"Avansat","intensitate":"Ridicată – împing limitele, vreau rezultate rapide"}, "atunci":"Powerlifting", "justificare":"Genuflexiuni, împins de la piept, îndreptări – forța maximă este obiectivul.", "confidence":0.94 },
+    { "daca":{"tip":"Strength","intensitate":"Ridicată – împing limitele, vreau rezultate rapide","mediu":"Sală de fitness / Grup"}, "atunci":"CrossFit", "justificare":"WOD-uri variate, comunitate puternică, forță și condiție fizică la nivel înalt.", "confidence":0.93 },
+    { "daca":{"tip":"Strength","mediu":"Acasă / Individual","timp":"3-4 ore"}, "atunci":"Calisthenics Avansat", "justificare":"Muscle-up, planche, front lever – gimnastică cu greutatea corpului la nivel înalt.", "confidence":0.89 },
+    { "daca":{"tip":"Strength","restrictie":"impact_scazut"}, "atunci":"Antrenament cu Benzi Elastice", "justificare":"Rezistență progresivă fără impact pe articulații – eficient și sigur.", "confidence":0.87 },
+    { "daca":{"tip":"Strength","ritm":"tehnic"}, "atunci":"Weightlifting Olimpic", "justificare":"Smuls și aruncat – tehnica cea mai complexă din culturism, satisfacție maximă.", "confidence":0.90 },
+    { "daca":{"tip":"Strength","stil_social":"solo","timp":"8+ ore"}, "atunci":"Periodizare Avansată (PPL)", "justificare":"Program Push/Pull/Legs cu 6 sesiuni/săptămână pentru maximizarea forței.", "confidence":0.92 },
+
+    { "daca":{"tip":"Hypertrophy","experienta":"Începător"}, "atunci":"Starting Strength / StrongLifts 5x5", "justificare":"Programe liniare clasice pentru câștig rapid de masă și forță la debut.", "confidence":0.90 },
+    { "daca":{"tip":"Hypertrophy","experienta":"Intermediar","mediu":"Sală de fitness / Grup"}, "atunci":"Bodybuilding Split (PPL)", "justificare":"6 zile de antrenament, focalizare pe fiecare grupă – creștere musculară optimă.", "confidence":0.93 },
+    { "daca":{"tip":"Hypertrophy","experienta":"Avansat"}, "atunci":"PHAT / PHUL (Power Hypertrophy)", "justificare":"Combini forța cu volumul – cel mai eficient protocol pentru masă musculară avansată.", "confidence":0.94 },
+    { "daca":{"tip":"Hypertrophy","timp":"8+ ore"}, "atunci":"Bodybuilding Competițional", "justificare":"Dedicare totală – nutriție, antrenament, odihnă optimizate pentru scenă.", "confidence":0.91 },
+    { "daca":{"tip":"Hypertrophy","mediu":"Acasă / Individual"}, "atunci":"Antrenament cu Ganterele Acasă", "justificare":"Un set de gantere ajustabile și un program bun îți pot construi un corp impresionant.", "confidence":0.86 },
+
+    { "daca":{"tip":"Flexibility","experienta":"Începător"}, "atunci":"Yoga pentru Începători (Hatha)", "justificare":"Posturi statice, respirație conștientă – crești mobilitatea fără presiune.", "confidence":0.91 },
+    { "daca":{"tip":"Flexibility","experienta":"Intermediar"}, "atunci":"Pilates", "justificare":"Forță a core-ului, postură perfectă, mobilitate crescută – corpul tău se rebalansează.", "confidence":0.90 },
+    { "daca":{"tip":"Flexibility","experienta":"Avansat","mediu":"Studio specializat"}, "atunci":"Yoga Avansată (Ashtanga / Vinyasa)", "justificare":"Secvențe dinamice, posturi complexe – mobilitate și forță la nivel artistic.", "confidence":0.92 },
+    { "daca":{"tip":"Flexibility","restrictie":"impact_scazut"}, "atunci":"Stretching Terapeutic", "justificare":"Reducerea durerilor, îmbunătățirea posturii și prevenirea leziunilor viitoare.", "confidence":0.93 },
+    { "daca":{"tip":"Flexibility","restrictie":"reabilitare"}, "atunci":"Fizioterapie activă / Stretching de Recuperare", "justificare":"Program personalizat de revenire, cu exerciții blânde și progresive.", "confidence":0.95 },
+    { "daca":{"tip":"Flexibility","ritm":"mindful"}, "atunci":"Yin Yoga", "justificare":"Posturi ținute 3-5 minute – accesezi țesuturile profunde și mintea se liniștește.", "confidence":0.91 },
+    { "daca":{"tip":"Flexibility","mediu":"Acasă / Individual"}, "atunci":"Program Mobilitate Zilnică", "justificare":"15-30 minute pe zi de stretching activ și pasiv transformă corpul în timp.", "confidence":0.88 },
+
+    { "daca":{"tip":"MindBody","experienta":"Începător"}, "atunci":"Meditație Yoga (Hatha & Mindfulness)", "justificare":"Respirație, prezență, calm – prima ta investiție în sănătatea mentală.", "confidence":0.93 },
+    { "daca":{"tip":"MindBody","mediu":"În aer liber","timp":"3-4 ore"}, "atunci":"Hiking / Trekking", "justificare":"Natura resetează mintea – fiecare pas pe munte reduce cortizolul.", "confidence":0.92 },
+    { "daca":{"tip":"MindBody","experienta":"Avansat"}, "atunci":"Tai Chi / Qigong", "justificare":"Mișcare meditativă – control desăvârșit al corpului și minții în perfect echilibru.", "confidence":0.91 },
+    { "daca":{"tip":"MindBody","ritm":"mindful"}, "atunci":"Kundalini Yoga", "justificare":"Combinație de mișcare, respirație și meditație – transformare profundă.", "confidence":0.90 },
+    { "daca":{"tip":"MindBody","mediu":"Studio specializat"}, "atunci":"Mindfulness & Yoga Flow", "justificare":"Clase ghidate în studio – mediul dedicat amplifică efectul meditației.", "confidence":0.89 },
+    { "daca":{"tip":"MindBody","stil_social":"grup_mare"}, "atunci":"Dance Therapy / Contact Improvisation", "justificare":"Mișcarea liberă în grup eliberează emoții și construiește conexiuni autentice.", "confidence":0.87 },
+
+    { "daca":{"tip":"Endurance","mediu":"În aer liber","timp":"5-7 ore"}, "atunci":"Road Running (Semi-Maraton / Maraton)", "justificare":"Construiești rezistența pas cu pas – de la 5k la maraton complet.", "confidence":0.93 },
+    { "daca":{"tip":"Endurance","mediu":"În apă"}, "atunci":"Înot de Fond", "justificare":"Kilometer după kilometer în apă – rezistența cardiovasculară la nivel de elită.", "confidence":0.91 },
+    { "daca":{"tip":"Endurance","mediu":"În aer liber","timp":"8+ ore"}, "atunci":"Triathlon / Duathlon", "justificare":"Înot, ciclism, alergare – testul suprem al rezistenței umane.", "confidence":0.95 },
+    { "daca":{"tip":"Endurance","mediu":"Sală de fitness / Grup"}, "atunci":"Rowing (Canotaj Ergometru)", "justificare":"Antrenament total-body de rezistență – 86% din mușchi activați simultan.", "confidence":0.90 },
+    { "daca":{"tip":"Endurance","intensitate":"Moderată – transpir, dar controlez ritmul"}, "atunci":"Cycling de Rezistență", "justificare":"Bicicleta construiește rezistența aerobă fără impactul alergării.", "confidence":0.89 },
+
+    { "daca":{"tip":"Rehab","restrictie":"reabilitare","mediu":"În apă"}, "atunci":"Aqua Gym / Hidroterapie", "justificare":"Apa reduce impactul cu 90% – recuperare rapidă și sigură.", "confidence":0.96 },
+    { "daca":{"tip":"Rehab","restrictie":"reabilitare"}, "atunci":"Kinetoterapie Activă", "justificare":"Program structurat cu exerciții terapeutice – recuperare optimă și prevenirea recidivelor.", "confidence":0.95 },
+    { "daca":{"tip":"Rehab","restrictie":"impact_scazut"}, "atunci":"Pilates de Reabilitare", "justificare":"Core stabil, postură corectă – elimini cauzele durerii cronice.", "confidence":0.93 },
+
+    { "daca":{"mediu":"În apă","restrictie":"impact_scazut"}, "atunci":"Aqua Gym", "justificare":"Exerciții în apă – forță, cardio, mobilitate fără niciun stres pe articulații.", "confidence":0.94 },
+    { "daca":{"mediu":"În apă","intensitate":"Ridicată – împing limitele, vreau rezultate rapide"}, "atunci":"Water Polo", "justificare":"Cardio extrem + forță + tactică – sportul care consumă cele mai multe calorii.", "confidence":0.91 },
+    { "daca":{"mediu":"În apă","timp":"8+ ore"}, "atunci":"Înot Competițional", "justificare":"Tehnici perfecte, distanțe lungi – performanță acvatică la cel mai înalt nivel.", "confidence":0.90 },
+
+    { "daca":{"ritm":"distractiv","stil_social":"grup_mare"}, "atunci":"Zumba / Dance Fitness", "justificare":"Petrecerea săptămânală care te și slăbește – dans, muzică, prieteni.", "confidence":0.91 },
+    { "daca":{"ritm":"distractiv","mediu":"În aer liber"}, "atunci":"Sport de Echipă (Fotbal, Baschet, Volei)", "justificare":"Competiție, socializare, mișcare – triple beneficii într-o singură activitate.", "confidence":0.89 },
+    { "daca":{"ritm":"tehnic","experienta":"Avansat"}, "atunci":"Arte Marțiale (Brazilian Jiu-Jitsu / Judo)", "justificare":"Tehnica cea mai complexă din sport – fiecare sesiune e o provocare mentală.", "confidence":0.92 },
+    { "daca":{"ritm":"tehnic","mediu":"Studio specializat"}, "atunci":"Balet / Dans Contemporan", "justificare":"Ani de tehnică cristalizată în mișcare – artă și atletism fuzionate.", "confidence":0.88 },
+
+    { "daca":{"obiectiv":"Slăbit intens","mediu":"Sală de fitness / Grup","stil_social":"grup_mare"}, "atunci":"Body Combat / Les Mills", "justificare":"Cardio bazat pe arte marțiale în grup – energie explozivă, ardere maximă.", "confidence":0.93 },
+    { "daca":{"obiectiv":"Slăbit intens","mediu":"Acasă / Individual","timp":"1-2 ore"}, "atunci":"Home HIIT (YouTube / App)", "justificare":"30 minute de HIIT acasă = 600 kcal arse, zero echipament, maxim eficiență.", "confidence":0.92 },
+    { "daca":{"obiectiv":"Tonifiere musculară","mediu":"Acasă / Individual","experienta":"Intermediar"}, "atunci":"Calisthenics Intermediar", "justificare":"Dips, pull-ups, pistol squats – tonifiere completă fără a ieși din casă.", "confidence":0.91 },
+    { "daca":{"obiectiv":"Reabilitare / Recuperare","mediu":"Studio specializat"}, "atunci":"Pilates Clinic", "justificare":"Supravegheat de specialist, pe aparate dedicate – recuperare sigură și eficientă.", "confidence":0.96 }
   ],
-  "default": {
-    "atunci": "Mers alert",
-    "justificare": "Nu am găsit o corelație exactă între toate premisele tale, așa că îți recomandăm mersul alert ca punct de pornire sigur.",
-    "descriere": "Cea mai accesibilă formă de exercițiu fizic pentru sănătatea cardiovasculară."
+
+  "default":{
+    "atunci":"Plimbare Sportivă (Nordic Walking)",
+    "justificare":"O activitate accesibilă, sănătoasă și potrivită oricui – primul pas spre o viață activă.",
+    "confidence":0.55
   }
 }
