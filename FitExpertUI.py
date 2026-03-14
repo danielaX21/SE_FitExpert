@@ -1,18 +1,22 @@
+"""
+interfata.py  –  Interfața grafică (Tkinter)
+Autor: Ispas Daniela-Estera
+Rol:   UI dinamic, navigare întrebări, afișare rezultate
+"""
+
 import tkinter as tk
-from tkinter import font
-import json
-import math
+from inferenta import MotorInferenta, incarca_baza
 
 
 # ─────────────────────────────────────────────
-#  PALETA & CONSTANTE
+#  PALETA & CONSTANTE VIZUALE
 # ─────────────────────────────────────────────
 BG           = "#050508"
 CARD_BG      = "#0E0E18"
 CARD_BORDER  = "#1C1C30"
-ACCENT       = "#C8F545"   # lime acid
-ACCENT2      = "#7B61FF"   # violet electric
-ACCENT3      = "#FF4D6A"   # coral
+ACCENT       = "#C8F545"
+ACCENT2      = "#7B61FF"
+ACCENT3      = "#FF4D6A"
 TEXT_HI      = "#F5F5FF"
 TEXT_LO      = "#6B6B8A"
 SEL_BG       = "#1A2200"
@@ -28,46 +32,43 @@ FONT_NUM     = ("Courier New", 38, "bold")
 
 
 # ─────────────────────────────────────────────
-#  HELPER – Canvas Progress Bar
+#  WIDGET – Bară de progres
 # ─────────────────────────────────────────────
 class ProgressBar(tk.Canvas):
     def __init__(self, parent, total, **kw):
         kw.setdefault("bg", BG)
         super().__init__(parent, height=3,
                          highlightthickness=0, **kw)
-        self.total = total
-        self._step = 0
+        self.total  = total
+        self._step  = 0
 
     def set(self, step):
         self._step = step
         self.delete("all")
         w = self.winfo_width() or 600
         ratio = step / max(self.total, 1)
-        # track
         self.create_rectangle(0, 0, w, 3, fill=CARD_BG, outline="")
-        # fill
         if ratio > 0:
             self.create_rectangle(0, 0, int(w * ratio), 3,
                                   fill=ACCENT, outline="")
 
 
 # ─────────────────────────────────────────────
-#  HELPER – Opțiune radio custom
+#  WIDGET – Rând opțiune radio custom
 # ─────────────────────────────────────────────
 class OptionRow(tk.Frame):
-    def __init__(self, parent, text, var, value, callback):
+    def __init__(self, parent, text, var, value, callback, index=0):
         super().__init__(parent, bg=CARD_BG,
                          highlightthickness=1,
                          highlightbackground=CARD_BORDER,
                          cursor="hand2")
-        self.var      = var
-        self.value    = value
-        self.callback = callback
+        self.var       = var
+        self.value     = value
+        self.callback  = callback
         self._selected = False
 
-        # index label (A, B, C…)
-        idx = chr(65 + list(parent.winfo_children()).index(self) - 0)
-        self.lbl_idx = tk.Label(self, text=idx, fg=TEXT_LO,
+        idx_label = chr(65 + index)   # A, B, C, D…
+        self.lbl_idx = tk.Label(self, text=idx_label, fg=TEXT_LO,
                                 bg=CARD_BG, font=FONT_TINY,
                                 width=3, anchor="center")
         self.lbl_idx.pack(side="left", padx=(14, 4), pady=14)
@@ -79,7 +80,6 @@ class OptionRow(tk.Frame):
         self.lbl.pack(side="left", fill="x", expand=True,
                       padx=(0, 20), pady=14)
 
-        # dot indicator
         self.dot = tk.Canvas(self, width=16, height=16,
                              bg=CARD_BG, highlightthickness=0)
         self.dot.pack(side="right", padx=18)
@@ -117,8 +117,7 @@ class OptionRow(tk.Frame):
 
     def select(self):
         self._selected = True
-        self.config(bg=SEL_BG, highlightbackground=SEL_BORDER,
-                    highlightthickness=1)
+        self.config(bg=SEL_BG, highlightbackground=SEL_BORDER)
         self.lbl.config(bg=SEL_BG, fg=TEXT_HI)
         self.lbl_idx.config(bg=SEL_BG, fg=ACCENT)
         self.dot.config(bg=SEL_BG)
@@ -126,8 +125,7 @@ class OptionRow(tk.Frame):
 
     def deselect(self):
         self._selected = False
-        self.config(bg=CARD_BG, highlightbackground=CARD_BORDER,
-                    highlightthickness=1)
+        self.config(bg=CARD_BG, highlightbackground=CARD_BORDER)
         self.lbl.config(bg=CARD_BG, fg=TEXT_HI)
         self.lbl_idx.config(bg=CARD_BG, fg=TEXT_LO)
         self.dot.config(bg=CARD_BG)
@@ -137,62 +135,60 @@ class OptionRow(tk.Frame):
 # ─────────────────────────────────────────────
 #  APLICAȚIA PRINCIPALĂ
 # ─────────────────────────────────────────────
-class FitExpertPro:
+class FitExpertUI:
 
     def __init__(self, root):
-        self.root = root
+        self.root  = root
         self.root.title("FitExpert Pro")
         self.root.geometry("680x820")
         self.root.configure(bg=BG)
         self.root.resizable(False, False)
 
+        # ── Încarcă baza și inițializează motorul (Iulia) ──
         try:
-            with open("baza_cunostinte.json", "r", encoding="utf-8") as f:
-                self.date = json.load(f)
+            baza = incarca_baza("baza_cunostinte.json")
         except Exception as e:
-            self._error(f"Eroare la încărcarea bazei de cunoștințe:\n{e}")
+            self._eroare(f"Eroare la încărcarea bazei de cunoștințe:\n{e}")
             return
 
-        self.index       = 0
-        self.fapte       = {}
-        self.opt_rows    = []
+        self.date   = baza
+        self.motor  = MotorInferenta(baza)   # <-- motorul Iuliei
+
+        self.index    = 0
+        self.fapte    = {}
+        self.opt_rows = []
 
         self._build_ui()
         self._render_question()
 
-    # ── UI shell ─────────────────────────────
+    # ── Construiește shell-ul UI ──────────────
     def _build_ui(self):
         total = len(self.date["intrebari"])
 
-        # ── header ──
+        # Header
         hdr = tk.Frame(self.root, bg=BG)
         hdr.pack(fill="x", padx=40, pady=(30, 0))
 
-        tk.Label(hdr, text="FIT", fg=ACCENT,
-                 bg=BG, font=FONT_TITLE).pack(side="left")
-        tk.Label(hdr, text="EXPERT", fg=TEXT_HI,
-                 bg=BG, font=FONT_TITLE).pack(side="left")
-        tk.Label(hdr, text=" PRO", fg=ACCENT2,
-                 bg=BG, font=FONT_TITLE).pack(side="left")
+        tk.Label(hdr, text="FIT",    fg=ACCENT,  bg=BG, font=FONT_TITLE).pack(side="left")
+        tk.Label(hdr, text="EXPERT", fg=TEXT_HI, bg=BG, font=FONT_TITLE).pack(side="left")
+        tk.Label(hdr, text=" PRO",   fg=ACCENT2, bg=BG, font=FONT_TITLE).pack(side="left")
 
-        # step counter (right-aligned)
         self.lbl_step = tk.Label(hdr, text="01 / 08",
                                  fg=TEXT_LO, bg=BG, font=FONT_MONO)
         self.lbl_step.pack(side="right")
 
-        # progress bar
-        self.prog = ProgressBar(self.root, total, bg=BG)
-        self.prog.pack(fill="x", padx=0, pady=(10, 0))
+        # Progress bar
+        self.prog = ProgressBar(self.root, total)
+        self.prog.pack(fill="x", pady=(10, 0))
         self.root.after(100, lambda: self.prog.set(0))
 
-        # decorative separator
         tk.Frame(self.root, bg=CARD_BORDER, height=1).pack(fill="x")
 
-        # ── content area ──
+        # Zona de conținut (întrebări / rezultate)
         self.content = tk.Frame(self.root, bg=BG)
         self.content.pack(fill="both", expand=True, padx=40, pady=20)
 
-        # ── footer button ──
+        # Footer
         foot = tk.Frame(self.root, bg=BG)
         foot.pack(fill="x", padx=40, pady=(0, 30))
 
@@ -206,12 +202,12 @@ class FitExpertPro:
             bg=ACCENT, fg=BG,
             font=("Courier New", 11, "bold"),
             relief="flat", padx=32, pady=14,
-            cursor="hand2", activebackground="#aed43a",
-            activeforeground=BG
+            cursor="hand2",
+            activebackground="#aed43a", activeforeground=BG
         )
         self.btn.pack(side="right")
 
-    # ── render question ───────────────────────
+    # ── Afișează întrebarea curentă ───────────
     def _render_question(self):
         for w in self.content.winfo_children():
             w.destroy()
@@ -221,31 +217,27 @@ class FitExpertPro:
         q     = self.date["intrebari"][self.index]
         total = len(self.date["intrebari"])
 
-        # step label
-        self.lbl_step.config(
-            text=f"{self.index+1:02d} / {total:02d}")
+        self.lbl_step.config(text=f"{self.index+1:02d} / {total:02d}")
         self.prog.set(self.index)
         self.root.after(50, lambda: self.prog.set(self.index + 1))
 
-        # big number
-        num_f = tk.Frame(self.content, bg=BG)
-        num_f.pack(fill="x", pady=(10, 0))
-        tk.Label(num_f, text=f"{self.index+1:02d}",
-                 fg=CARD_BORDER, bg=BG, font=FONT_NUM).pack(side="left")
+        # Număr mare decorativ
+        tk.Label(self.content, text=f"{self.index+1:02d}",
+                 fg=CARD_BORDER, bg=BG, font=FONT_NUM).pack(anchor="w")
 
-        # question text
+        # Textul întrebării
         tk.Label(self.content, text=q["text"],
                  fg=TEXT_HI, bg=BG, font=FONT_Q,
-                 wraplength=580, justify="left",
-                 anchor="w").pack(fill="x", pady=(4, 20))
+                 wraplength=580, justify="left", anchor="w").pack(
+                     fill="x", pady=(4, 20))
 
-        # options
+        # Opțiuni
         self.selection = tk.StringVar(value="__none__")
 
-        for opt in q["optiuni"]:
+        for i, opt in enumerate(q["optiuni"]):
             row = OptionRow(self.content, opt,
                             self.selection, opt,
-                            self._on_select)
+                            self._on_select, index=i)
             row.pack(fill="x", pady=4)
             self.opt_rows.append((row, opt))
 
@@ -258,10 +250,11 @@ class FitExpertPro:
             else:
                 row.deselect()
 
-    # ── navigation ───────────────────────────
+    # ── Navigare ─────────────────────────────
     def _handle_next(self):
         if self.selection.get() == "__none__":
-            self.err_lbl.config(text="⚠  Selectează o opțiune pentru a continua.")
+            self.err_lbl.config(
+                text="⚠  Selectează o opțiune pentru a continua.")
             return
 
         qid = self.date["intrebari"][self.index]["id"]
@@ -273,65 +266,17 @@ class FitExpertPro:
         else:
             self._show_results()
 
-    # ── inference engine ──────────────────────
-    def _run_inference(self):
-        facts   = dict(self.fapte)
-        rules   = self.date["reguli"]
-        explain = []
-        recs    = {}
-
-        changed = True
-        while changed:
-            changed = False
-            for rule in rules:
-                cond = rule["daca"]
-                if not all(facts.get(k) == v for k, v in cond.items()):
-                    continue
-
-                if "atunci_fapt" in rule:
-                    for k, v in rule["atunci_fapt"].items():
-                        if facts.get(k) != v:
-                            facts[k] = v
-                            explain.append(f"dedus: {k} = {v}")
-                            changed = True
-
-                if "atunci" in rule:
-                    sport = rule["atunci"]
-                    score = rule.get("confidence", 0.7)
-                    if sport not in recs or recs[sport]["score"] < score:
-                        recs[sport] = {
-                            "sport":       sport,
-                            "justificare": rule["justificare"],
-                            "score":       score,
-                            "matched":     list(cond.keys())
-                        }
-                    explain.append(f"regulă activă → {sport} ({int(score*100)}%)")
-
-        result_list = sorted(recs.values(),
-                             key=lambda x: x["score"], reverse=True)
-
-        if not result_list:
-            d = self.date["default"]
-            result_list = [{
-                "sport":       d["atunci"],
-                "justificare": d["justificare"],
-                "score":       d.get("confidence", 0.55),
-                "matched":     []
-            }]
-
-        return result_list[:3], explain
-
-    # ── results screen ────────────────────────
+    # ── Ecranul de rezultate ──────────────────
     def _show_results(self):
         for w in self.content.winfo_children():
             w.destroy()
         self.btn.config(text="RESTART  ↺", command=self._restart)
 
-        results, explain = self._run_inference()
+        # ── Apelăm motorul Iuliei ──
+        rezultate, explicatie = self.motor.ruleaza(self.fapte)
 
-        # ── scroll canvas ──
-        canvas = tk.Canvas(self.content, bg=BG,
-                           highlightthickness=0)
+        # Scroll canvas
+        canvas = tk.Canvas(self.content, bg=BG, highlightthickness=0)
         sb = tk.Scrollbar(self.content, orient="vertical",
                           command=canvas.yview)
         canvas.configure(yscrollcommand=sb.set)
@@ -350,7 +295,7 @@ class FitExpertPro:
                    lambda e: canvas.yview_scroll(
                        -1 if e.delta > 0 else 1, "units"))
 
-        # headline
+        # Titlu
         tk.Label(inner, text="REZULTATELE TALE",
                  fg=ACCENT, bg=BG,
                  font=("Courier New", 12, "bold")).pack(
@@ -362,54 +307,50 @@ class FitExpertPro:
 
         MEDAL = ["🥇", "🥈", "🥉"]
 
-        for i, r in enumerate(results):
-            pct = int(r["score"] * 100)
+        for i, r in enumerate(rezultate):
+            pct  = int(r["score"] * 100)
             card = tk.Frame(inner, bg=CARD_BG,
                             highlightthickness=1,
                             highlightbackground=(
                                 ACCENT if i == 0 else CARD_BORDER))
-            card.pack(fill="x", pady=8, ipady=0)
+            card.pack(fill="x", pady=8)
 
-            # top strip (medal + sport name + score)
             top = tk.Frame(card, bg=CARD_BG)
             top.pack(fill="x", padx=18, pady=(16, 4))
 
             tk.Label(top, text=MEDAL[i], bg=CARD_BG,
                      font=("Segoe UI Emoji", 20)).pack(side="left")
-
             tk.Label(top, text=r["sport"],
                      fg=ACCENT if i == 0 else TEXT_HI,
                      bg=CARD_BG,
                      font=("Georgia", 15, "bold")).pack(
                          side="left", padx=12)
-
             tk.Label(top, text=f"{pct}%",
                      fg=ACCENT if i == 0 else ACCENT2,
                      bg=CARD_BG,
                      font=("Courier New", 13, "bold")).pack(side="right")
 
-            # mini progress
+            # Mini progress bar
             pbar = tk.Canvas(card, height=3, bg=CARD_BG,
                              highlightthickness=0)
             pbar.pack(fill="x", padx=18, pady=(2, 8))
             pbar.update_idletasks()
             w = pbar.winfo_width() or 540
             pbar.create_rectangle(0, 0, w, 3, fill=CARD_BORDER, outline="")
-            fill_color = ACCENT if i == 0 else ACCENT2
             pbar.create_rectangle(0, 0, int(w * r["score"]), 3,
-                                  fill=fill_color, outline="")
+                                  fill=ACCENT if i == 0 else ACCENT2,
+                                  outline="")
 
-            # justification
             tk.Label(card, text=r["justificare"],
                      fg=TEXT_LO, bg=CARD_BG,
                      font=FONT_SUB, wraplength=510,
                      justify="left").pack(
                          anchor="w", padx=18, pady=(0, 16))
 
-        # ── explain trace ──
+        # Traseu de inferență
         tk.Frame(inner, bg=CARD_BORDER, height=1).pack(
             fill="x", pady=(24, 12))
-        tk.Label(inner, text="TRASEU DE INFERENȚĂ",
+        tk.Label(inner, text="TRASEU DE INFERENȚĂ (Forward Chaining)",
                  fg=TEXT_LO, bg=BG,
                  font=("Courier New", 9, "bold")).pack(anchor="w")
 
@@ -418,26 +359,23 @@ class FitExpertPro:
                            highlightbackground=CARD_BORDER)
         trace_f.pack(fill="x", pady=(6, 20))
 
-        for step in explain:
+        pasi = explicatie if explicatie else [
+            "Nicio regulă intermediară activată → recomandare directă."]
+        for step in pasi:
             tk.Label(trace_f, text="›  " + step,
                      fg=TEXT_LO, bg=CARD_BG,
                      font=FONT_TINY, anchor="w",
                      justify="left").pack(
-                         fill="x", padx=14, pady=1)
+                         fill="x", padx=14, pady=2)
 
-        if not explain:
-            tk.Label(trace_f, text="›  Nicio regulă intermediară activată.",
-                     fg=TEXT_LO, bg=CARD_BG,
-                     font=FONT_TINY).pack(padx=14, pady=4)
-
-    # ── restart ───────────────────────────────
+    # ── Restart ───────────────────────────────
     def _restart(self):
         for w in self.root.winfo_children():
             w.destroy()
-        FitExpertPro(self.root)
+        FitExpertUI(self.root)
 
-    # ── error popup ───────────────────────────
-    def _error(self, msg):
+    # ── Eroare ───────────────────────────────
+    def _eroare(self, msg):
         win = tk.Toplevel(self.root)
         win.title("Eroare")
         win.configure(bg=BG)
@@ -450,5 +388,5 @@ class FitExpertPro:
 # ─────────────────────────────────────────────
 if __name__ == "__main__":
     root = tk.Tk()
-    app  = FitExpertPro(root)
+    app  = FitExpertUI(root)
     root.mainloop()
