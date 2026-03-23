@@ -1,159 +1,94 @@
-"""
-inferenta.py  –  Motorul de inferență (Forward Chaining)
-Autor: Vanya Iulia-Maria
-Rol:   Baza de cunoștințe + Mașina de inferență
-
-Algoritm: Forward Chaining (Înlănțuire înainte)
-  Pornește de la faptele utilizatorului și aplică reguli
-  până când nu mai există nicio regulă activabilă.
-  Suportă reguli intermediare (care deduc fapte noi)
-  și reguli finale (care produc recomandări de sporturi).
-  Conflictele dintre reguli sunt rezolvate prin confidence.
-"""
-
 import json
 
 
 def incarca_baza(cale="baza_cunostinte.json"):
-    """
-    Încarcă baza de cunoștințe din fișierul JSON.
-
-    Parametri:
-        cale (str): calea relativă sau absolută a fișierului JSON
-
-    Returnează:
-        dict: dicționarul complet cu 'intrebari', 'reguli', 'default'
-
-    Ridică:
-        FileNotFoundError: dacă fișierul nu există
-        json.JSONDecodeError: dacă fișierul nu este JSON valid
-    """
     with open(cale, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
 class MotorInferenta:
-    """
-    Mașină de inferență Forward Chaining (Înlănțuire înainte).
-
-    Procesul de inferență:
-      1. Pornește de la faptele furnizate de utilizator (premise).
-      2. Parcurge TOATE regulile din baza de cunoștințe.
-      3. Dacă TOATE condițiile unei reguli sunt satisfăcute:
-         a. Reguli intermediare -> adaugă fapte noi în memorie de lucru
-         b. Reguli finale       -> înregistrează o recomandare
-      4. Dacă s-a adăugat cel puțin un fapt nou -> repetă de la 2.
-      5. Se oprește când nicio regulă nu mai poate fi activată.
-      6. Rezolvă conflictele: dacă două reguli recomandă același
-         sport, câștigă cea cu valoarea 'confidence' mai mare.
-      7. Returnează top 3 recomandări sortate descrescător.
-
-    Atribute:
-        reguli  (list): lista de reguli din baza de cunoștințe
-        default (dict): recomandarea implicită dacă nicio regulă nu se activează
-    """
 
     def __init__(self, baza: dict):
-        """
-        Inițializează motorul cu o bază de cunoștințe încărcată.
-
-        Parametri:
-            baza (dict): dicționarul returnat de incarca_baza()
-        """
         self.reguli  = baza["reguli"]
         self.default = baza["default"]
 
+
     def ruleaza(self, fapte_initiale: dict):
-        """
-        Rulează algoritmul Forward Chaining pe faptele utilizatorului.
-
-        Parametri:
-            fapte_initiale (dict): răspunsurile colectate din interfață
-                ex: {"obiectiv": "Slăbit intens", "mediu": "Acasă / Individual", ...}
-
-        Returnează:
-            tuple:
-                recomandari (list[dict]): top 3 sporturi recomandate
-                explicatie  (list[str]):  traseul complet de inferență
-        """
-        fapte       = dict(fapte_initiale)
-        explicatie  = []
-        recomandari = {}
-
+        fapte = dict(fapte_initiale)
+        explicatie = []
+        
+        # 1. Forward Chaining - Deducem fapte intermediare
         schimbat = True
         while schimbat:
             schimbat = False
-
             for regula in self.reguli:
-                conditii = regula["daca"]
-
-                if not all(fapte.get(k) == v for k, v in conditii.items()):
-                    continue
-
-                # Reguli INTERMEDIARE
                 if "atunci_fapt" in regula:
-                    for k, v in regula["atunci_fapt"].items():
-                        if fapte.get(k) != v:
-                            fapte[k] = v
-                            schimbat  = True
-                            explicatie.append(
-                                f"[FAPT NOU] {k} = \"{v}\"  "
-                                f"<- condiție satisfăcută: {conditii}"
-                            )
+                    conditii = regula["daca"]
+                    if all(fapte.get(k) == v for k, v in conditii.items()):
+                        for k, v in regula["atunci_fapt"].items():
+                            if fapte.get(k) != v:
+                                fapte[k] = v
+                                schimbat = True
+                                explicatie.append(f"[Deducție] Deoarece {conditii}, am stabilit că {k} = {v}")
 
-                # Reguli FINALE
-                if "atunci" in regula:
-                    sport = regula["atunci"]
-                    scor  = regula.get("confidence", 0.7)
+        # 2. Colectare sporturi cu scor de potrivire (fără a-l afișa)
+        recomandari_potentiale = []
+        for regula in self.reguli:
+            if "atunci" in regula:
+                sport = regula["atunci"]
+                conditii = regula["daca"]
+                
+                # Calculăm câte condiții din regulă sunt respectate de faptele noastre
+                potriviri = sum(1 for k, v in conditii.items() if fapte.get(k) == v)
+                total_cond = len(conditii)
 
-                    conflict = self._rezolva_conflict(
-                        recomandari, sport, scor, conditii, regula
-                    )
-                    if conflict["actualizat"]:
-                        recomandari[sport] = conflict["rec"]
-                        explicatie.append(
-                            f"[REGULĂ ACTIVĂ] -> \"{sport}\" "
-                            f"(confidence: {int(scor*100)}%)"
-                        )
-                    elif conflict["ignorat"]:
-                        explicatie.append(
-                            f"[CONFLICT REZOLVAT] \"{sport}\" există deja "
-                            f"cu scor mai mare -> ignorat "
-                            f"({int(scor*100)}% < "
-                            f"{int(recomandari[sport]['score']*100)}%)"
-                        )
+                # Dacă există măcar o potrivire, considerăm sportul candidat
+                if potriviri > 0:
+                    recomandari_potentiale.append({
+                        "sport": sport,
+                        "justificare": regula.get("justificare", ""),
+                        "complexitate": potriviri, 
+                        "procent_logic": potriviri / total_cond, # Folosit doar pentru sortare internă
+                        "score": 1.0
+                    })
 
-        lista = sorted(
-            recomandari.values(),
-            key=lambda x: x["score"],
+        # 3. Sortare: prioritizăm potrivirea de 100%, apoi numărul de condiții
+        # Astfel, regulile cele mai specifice și corecte trec primele
+        lista_sortata = sorted(
+            recomandari_potentiale, 
+            key=lambda x: (x["procent_logic"], x["complexitate"]), 
             reverse=True
         )
+        
+        # Eliminăm duplicatele
+        vazute = set()
+        final = []
+        for r in lista_sortata:
+            if r["sport"] not in vazute:
+                final.append(r)
+                vazute.add(r["sport"])
 
-        if not lista:
-            d = self.default
-            lista = [{
-                "sport":       d["atunci"],
-                "justificare": d["justificare"],
-                "score":       d.get("confidence", 0.55),
-                "matched":     []
-            }]
-            explicatie.append(
-                "[DEFAULT] Nicio regulă specifică activată -> "
-                "recomandare generală implicită."
-            )
+        # 4. Garanție Top 3: Dacă avem mai puțin de 3, completăm cu Default
+        while len(final) < 3:
+            if not any(r["sport"] == self.default["atunci"] for r in final):
+                final.append({
+                    "sport": self.default["atunci"],
+                    "justificare": self.default["justificare"],
+                    "score": 1.0,
+                    "complexitate": 0
+                })
+            else:
+                # Dacă și default-ul e deja acolo, punem o variantă generică de siguranță
+                final.append({
+                    "sport": "Activitate Fizică Generală",
+                    "justificare": "Menținerea unui stil de viață activ prin mișcare zilnică.",
+                    "score": 1.0,
+                    "complexitate": 0
+                })
 
-        return lista[:3], explicatie
+        return final[:3], explicatie
 
     def _rezolva_conflict(self, recomandari, sport, scor, conditii, regula):
-        """
-        Rezolvă conflictele când același sport este recomandat de mai multe reguli.
-
-        Strategia: câștigă recomandarea cu valoarea 'confidence' cea mai mare.
-        În caz de egalitate, se păstrează prima recomandare găsită.
-
-        Returnează:
-            dict cu cheile 'actualizat', 'ignorat', 'rec'
-        """
         rec_noua = {
             "sport":       sport,
             "justificare": regula.get("justificare", ""),
@@ -172,19 +107,6 @@ class MotorInferenta:
             return {"actualizat": False, "ignorat": True, "rec": None}
 
     def genereaza_explicatii_human(self, fapte_initiale: dict, recomandari: list):
-        """
-        Generează explicații în limbaj natural (română) pentru utilizator.
-
-        Traduce traseul tehnic de inferență în propoziții prietenoase,
-        arătând utilizatorului DE CE sistemul a ajuns la acea concluzie.
-
-        Parametri:
-            fapte_initiale (dict): răspunsurile utilizatorului
-            recomandari    (list): top 3 recomandări returnate de ruleaza()
-
-        Returnează:
-            list[str]: lista de propoziții explicative în română
-        """
         linii = []
 
         obiectiv    = fapte_initiale.get("obiectiv",    "nespecificat")
@@ -198,17 +120,19 @@ class MotorInferenta:
             f"sistemul a parcurs baza de cunostinte si a activat regulile potrivite."
         )
 
+
         if recomandari:
             top = recomandari[0]
             linii.append(
-                f"Cea mai buna potrivire este {top['sport']} "
-                f"(certitudine {int(top['score']*100)}%) deoarece: "
+                f"Cea mai buna potrivire identificată este **{top['sport']}** deoarece: "
                 f"{top['justificare']}"
             )
 
+        
+
         if len(recomandari) > 1:
             alternative = ", ".join(
-                f"{r['sport']} ({int(r['score']*100)}%)"
+                f"{r['sport']}" 
                 for r in recomandari[1:]
             )
             linii.append(f"Alternativele recomandate sunt: {alternative}.")
